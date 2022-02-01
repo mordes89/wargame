@@ -1,5 +1,6 @@
-import logo from './logo.svg';
+import { render } from '@testing-library/react';
 import './App.css';
+import Game from './game';
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <button>SEE ALTIME SCORES</button>
       <br></br>
       <button>Play!</button>
+      <Game/>        
     </div>
   );
 }

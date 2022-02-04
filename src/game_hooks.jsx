@@ -1,6 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
 // import Deck from './deck';
-import { connect } from 'react-redux'
 
 
 const GameHooks = () => { 
@@ -41,11 +40,17 @@ const GameHooks = () => {
       })
     };
 
+
    // Function that creates the deck:
    const createDeck = () => {
          if (deck.length < 52 && player1_hand.length === 0 && player2_hand.length === 0) {
             let suits = ["Hearts", "Clubs", "Diamonds", "Spades"];
-            let values = [["Two", 2], ["Three", 3], ["Four", 4], ["Five", 5], ["Six", 6], ["Seven", 7], ["Eight", 8], ["Nine", 9], ["Ten", 10], ["Jack", 11], ["Queen", 12], ["King", 13], ["Ace", 14]];
+            let values = [["Two", 2], ["Three", 3], ["Four", 4], ["Five", 5], ["Six", 6], 
+                           ["Seven", 7], ["Eight", 8], ["Nine", 9], ["Ten", 10], ["Jack", 11], 
+                           ["Queen", 12], ["King", 13], ["Ace", 14]];
+            
+            // Iterate through 'suits' array, within each suit, we iterate through 
+            // all the 'values' in a nested loop that creates 13 cards for each suit
             for (let i = 0; i < values.length; i++) {
                for (let j = 0; j < suits.length; j++) {
                   setDeck((d) => [...d, [`${values[i][0]} of ${suits[j]}`, values[i][1]]]);
@@ -55,7 +60,7 @@ const GameHooks = () => {
    }
   
    
-
+   // Function that deals the cards to both players before the game begins
    const dealCards = () => {   
       if (player1_hand.length === 0 && player2_hand.length === 0){        
         
@@ -64,11 +69,20 @@ const GameHooks = () => {
             let random_card = Math.floor(Math.random()*deckRef.current.length);
             
             if (i%2 === 0){               // deal to player 1 if i is even
+               
+               // save the value of the card that will be removed from the deck
                let card1 = deckRef.current[random_card]
-               deck.splice(random_card, 1)               
+               // Remove the card from the deck
+               deck.splice(random_card, 1) 
+               // Set the deck to it's current state without the removed card              
                setDeck((d)=> deck)
+               // Add the saved card to the player's hand
                setPlayer1_hand((hand1) => [...hand1, card1])
+
+               // Same cycle comes up a lot in this code!
+
             } else if (i%2 === 1){       // deal to player 2 if i is uneven
+               // Same cycle as above
                let card2 = deckRef.current[random_card]
                deck.splice(random_card, 1)
                setDeck((d)=> deck)
@@ -79,6 +93,8 @@ const GameHooks = () => {
       
    }
 
+
+   // Function that increments or decrements the number of hands the user would like to play
    const setNumHandsToBePlayed = (action) => {    
       if (action === '+'){
          setNum_of_hands(num_of_handsRef.current+5)
@@ -87,6 +103,8 @@ const GameHooks = () => {
       }     
    }
 
+
+   // Function that increments or decrements the speed at which the hands are automatically played
    const adjustSpeed = (action) => {    
       if (action === 'Slower'){
          setSpeed(speedRef.current+10)
@@ -96,8 +114,9 @@ const GameHooks = () => {
    }
 
 
-
+   // This function checks if a player ran out of cards. i.e the other player wins.
    const check_winner = (n) => {
+      // if player 1 has less than n (could be 1 or 2, if there is a war), then player2 wins
       if (player1_handRef.current.length < n){
          console.log('Player 2 won the game');
          setGame_on(false);
@@ -121,20 +140,27 @@ const GameHooks = () => {
       
    }
 
+   // The main function of the game
    const playcards = async () => {
       if (game_onRef.current){
-         
+         // Check if player 1's top card is bigger than player 2's top card, and that noone has won yet
          if ((player1_handRef.current[0][1] > player2_handRef.current[0][1]) && !check_winner(1)){
             setWar(false);
             console.log('player1 wins');
 
+            // same cycle as above in dealing the cards
+            // save the values of the cards that are removed from the hands
             let card1 = player1_handRef.current.splice(0, 1)[0];
             let card2 = player2_handRef.current.splice(0, 1)[0];
             await sleep(speedRef.current)
-
+            // Set the losing hand to it's current state without the removed card
             setPlayer2_hand((oldHand2)=> player2_handRef.current)
+            // Add both removed cards to the winning hand
             setPlayer1_hand((oldHand1)=> [...player1_handRef.current, card1, card2])
-            // setPlayer1_hand((oldHand1)=> [...player1_handRef.current, card2])
+
+            // We need to add all the cards in the 'escrow' array where we keep the 
+            // cards to be won if there is a war. While there are cards to be won in war,
+            // this loop adds those cards to the winning plater's hand
             while (cards_to_be_wonRef.current.length > 0){
                let card = cards_to_be_wonRef.current.splice(0, 1)[0];
                setCards_to_be_won((oldCTBW) => cards_to_be_wonRef.current)
@@ -143,8 +169,8 @@ const GameHooks = () => {
                }
             }
             setGame_on(true);
+
          } else if ((player1_handRef.current[0][1] < player2_handRef.current[0][1]) && !check_winner(1)){
-            
             setWar(false);
             console.log('player2 wins');
 
@@ -154,7 +180,7 @@ const GameHooks = () => {
 
             setPlayer1_hand((oldHand1)=> player1_handRef.current)
             setPlayer2_hand((oldHand2)=> [...player2_handRef.current, card1, card2])
-            // setPlayer2_hand((oldHand2)=> [...player2_handRef.current, card2])
+
             while (cards_to_be_wonRef.current.length > 0){
                let card = cards_to_be_wonRef.current.splice(0, 1)[0];
                setCards_to_be_won((oldCTBW) => cards_to_be_wonRef.current)
@@ -163,25 +189,33 @@ const GameHooks = () => {
                }
             }
             setGame_on(true);
+
+
+            // If neither player wins the round, we are at war!!
          } else if ((player1_handRef.current[0][1] === player2_handRef.current[0][1]) && !check_winner(1)){
             console.log('war!');
             setWar(true)
-            if (warRef.current && !check_winner(3)){
-               // for(let i = 0; i < 2; i++){
-                  let [card1, card2] = player1_handRef.current.splice(0, 2);
-                  let [card3, card4] = player2_handRef.current.splice(0, 2);
-                  // let card2 = player2_handRef.current.splice(0, 1)[0];               
-                  await sleep(speedRef.current)
 
-                  setPlayer1_hand((h1)=> player1_handRef.current)
-                  setPlayer2_hand((h2)=> player2_handRef.current)
-                  await sleep(speedRef.current)
-                  if (!cards_to_be_wonRef.current.includes(card1)){
-                     setCards_to_be_won((oldCTBW) => [...cards_to_be_wonRef.current, card1, card2, card3, card4])               
-                  }
-               // }
+            // Check if both players have enough cards to play the war. If not, there is a winner! 
+            if (warRef.current && !check_winner(2)){
+               // Pull two cards from each player and save the values
+               let [card1, card2] = player1_handRef.current.splice(0, 2);
+               let [card3, card4] = player2_handRef.current.splice(0, 2);
+               await sleep(speedRef.current)
+
+               // Set the player's hands with their new state without removed cards
+               setPlayer1_hand((h1)=> player1_handRef.current)
+               setPlayer2_hand((h2)=> player2_handRef.current)
+               await sleep(speedRef.current)
+
+               if (!cards_to_be_wonRef.current.includes(card1)){
+                  // Add removed cards to the 'escrow' deck for the winner of the war.
+                  setCards_to_be_won((oldCTBW) => [...cards_to_be_wonRef.current, card1, card2, card3, card4])               
+               }
                setGame_on(true);
                await sleep(speedRef.current)
+
+               // Once cards in war are removed, we play again and the winner takes the cards in 'escrow' (i.e. cards_to_be_won)
                playcards();    
             }            
          }         
@@ -191,7 +225,7 @@ const GameHooks = () => {
    }
 
    
-
+   // Once game is complete, reset the game
    const reset = () => {
       setGame_on(false);
       setPlayer1_hand([]);
@@ -199,10 +233,12 @@ const GameHooks = () => {
       setCards_to_be_won([]);
    }
 
-
+   // Function that allows the user to play the game
    const play_game = async () => {
       game_onRef.current = true
       let i = 0;
+      
+      // while i is smaller than the number of hands the user wants to play, play the game!
       while (i < num_of_handsRef.current && game_onRef.current){
          playcards();
          await sleep(speedRef.current)         

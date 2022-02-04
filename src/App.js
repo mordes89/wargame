@@ -29,7 +29,7 @@ const store = createStore(reducer);
 
 const App = () => (
     <Provider store={store} className="App">
-      <h1>WAR</h1>      
+      <h1 id='title'>WAR!</h1>      
       {/* <Game/>         */}
       <GameHooks/>        
     </Provider>

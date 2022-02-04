@@ -99,28 +99,23 @@ const GameHooks = () => {
 
    const check_winner = (n) => {
       if (player1_handRef.current.length < n){
-         console.log('Player 2 won the game');
-         alert('Player 2 won the game');
+         // console.log('Player 2 won the game');
          setGame_on(false);
          // Increment winner's tally in Database
-         setPlayer2_wins((prev) => prev+1)
-         console.log('player2_winning hand',player2_handRef.current);
-         console.log('player1_losing hand',player1_handRef.current);         
+         setPlayer2_wins((prev) => prev+1)                
          reset();     
+         alert('Player 2 won the game');
          return true
       } else if (player2_handRef.current.length < n){
          console.log('Player 1 won the game');
-         alert('Player 1 won the game');
          setGame_on(false);
          // Increment winner's tally in Database
-         setPlayer1_wins((prev) => prev+1)
-         console.log('player1_winning hand',player1_handRef.current);
-         console.log('player2_losing hand',player2_handRef.current);
+         setPlayer1_wins((prev) => prev+1)         
          reset();   
+         alert('Player 1 won the game');
          return true  
       }
       setGame_on(true)
-      console.log('check_winner()');
       return false
    }
 
@@ -138,7 +133,6 @@ const GameHooks = () => {
             setPlayer2_hand((oldHand2)=> player2_handRef.current)
             setPlayer1_hand((oldHand1)=> [...player1_handRef.current, card1, card2])
             // setPlayer1_hand((oldHand1)=> [...player1_handRef.current, card2])
-            console.log('cards_to_be_wonRef player1 wins',cards_to_be_wonRef.current);
             while (cards_to_be_wonRef.current.length > 0){
                let card = cards_to_be_wonRef.current.splice(0, 1)[0];
                setCards_to_be_won((oldCTBW) => cards_to_be_wonRef.current)
@@ -148,8 +142,7 @@ const GameHooks = () => {
             }
             setGame_on(true);
          } else if (player1_handRef.current[0][1] < player2_handRef.current[0][1]){
-            // console.log('player1_handRef.current', player1_handRef.current);
-            // console.log('player2_handRef.current', player2_handRef.current);
+            
             setWar(false);
             console.log('player2 wins');
 
@@ -160,7 +153,6 @@ const GameHooks = () => {
             setPlayer1_hand((oldHand1)=> player1_handRef.current)
             setPlayer2_hand((oldHand2)=> [...player2_handRef.current, card1, card2])
             // setPlayer2_hand((oldHand2)=> [...player2_handRef.current, card2])
-            console.log('cards_to_be_wonRef player2 wins',cards_to_be_wonRef.current);
             while (cards_to_be_wonRef.current.length > 0){
                let card = cards_to_be_wonRef.current.splice(0, 1)[0];
                setCards_to_be_won((oldCTBW) => cards_to_be_wonRef.current)
@@ -182,21 +174,15 @@ const GameHooks = () => {
                   setPlayer1_hand((h1)=> player1_handRef.current)
                   setPlayer2_hand((h2)=> player2_handRef.current)
                   await sleep(speedRef.current)
-                  console.log('cards_to_be_wonRef 1',cards_to_be_wonRef.current);
                   if (!cards_to_be_wonRef.current.includes(card1)){
                      setCards_to_be_won((oldCTBW) => [...cards_to_be_wonRef.current, card1, card2, card3, card4])               
-                     console.log('cards_to_be_wonRef 2',cards_to_be_wonRef.current);
                   }
                // }
                setGame_on(true);
                await sleep(speedRef.current)
                playcards();    
             }            
-         }
-         await sleep(speedRef.current)
-         console.log('player1_handRef end of playcards',player1_handRef.current);
-         console.log('player2_handRef end of playcards',player2_handRef.current);
-         console.log('cards_to_be_wonRef end of playcards',cards_to_be_wonRef.current);
+         }         
 
       }
       
@@ -228,89 +214,100 @@ const GameHooks = () => {
    
    return(
       <div>
-         <h5>{`Player1 has won ${player1_wins} games`}</h5>       
-         <h5>{`Player2 has won ${player2_wins} games`}</h5>       
+         <div id='scores'>
+            <h4>{`Player 1 has won ${player1_wins} games`}</h4>       
+            <h4 id="p2">{`Player 2 has won ${player2_wins} games`}</h4> 
+         </div>      
          {/* <button onClick={reset}>Reset</button> */}
-         <button 
-            disabled={(deckRef.current.length > 0 || 
-                        player1_handRef.current.length > 0 || 
-                        player2_handRef.current.length > 0) ? 
-                        true : false} 
-            onClick={createDeck}>
-               Create Deck
-         </button>
-         <h3>{`Deck has ${deck.length} cards`}</h3>   
-         <button 
-            disabled={deckRef.current.length <= 0 ? 
-                        true : false} 
-            onClick={dealCards}>
-               Deal Cards
-         </button>    
-         <br></br>        
-         
-         <button 
-            disabled={(player1_handRef.current.length <= 0 || 
-                        player2_handRef.current.length <= 0) ? 
-                        true : false} 
-            onClick={()=>setNumHandsToBePlayed('-')}>
-               -
-         </button>
-         <button 
-            disabled={(player1_handRef.current.length <= 0 || 
-                        player2_handRef.current.length <= 0) ? 
-                        true : false} 
-            onClick={play_game}>
-               {`Play ${num_of_handsRef.current} Hands`}
-         </button>
-         <button 
-            disabled={(player1_handRef.current.length <= 0 || 
-                        player2_handRef.current.length <= 0) ? 
-                        true : false} 
-            onClick={()=>setNumHandsToBePlayed('+')}>
-               +
-         </button>
-         <br></br>        
-         
-         <button 
-            disabled={(player1_handRef.current.length <= 0 || 
-                        player2_handRef.current.length <= 0) ? 
-                        true : false} 
-            onClick={()=>adjustSpeed('Slower')}>
-               Slower
-         </button>         
-         <button 
-            disabled={(player1_handRef.current.length <= 0 || 
-                        player2_handRef.current.length <= 0) ? 
-                        true : false} 
-            onClick={()=>adjustSpeed('Faster')}>
-               Faster
-         </button>
-         {/* <Deck/> */}  
-         <h3>{`Player1 has ${player1_hand.length} cards`}</h3>       
-         <h3>{`Player2 has ${player2_hand.length} cards`}</h3>       
-         <h1>{player1_hand.length > 0 ? `Player1 plays: ${player1_hand[0][0]}` : null}</h1>       
-         <h1>{player2_hand.length > 0 ? `Player2 plays: ${player2_hand[0][0]}` : null}</h1>       
-         {/* <p>{JSON.stringify(deck)}</p>           */}
-         <p>{JSON.stringify(player1_hand)}</p>          
-         <p>{JSON.stringify(player2_hand)}</p>  
-         <h1>Player 1's Hand:</h1>        
-         <ul>
-            {player1_handRef.current.map((k) => (
-               <h6 key={`player1-${k}`}>
-                  {k[0]}
-               </h6>
-               )
-            )}
-         </ul>  
-         <h1>Player 2's Hand:</h1> 
-         <ul>
-            {player2_handRef.current.map((k) => (
-               <h6 key={`player2-${k}`}>
-                  {k[0]}
-               </h6>
-               )
-            )}
-         </ul>  
+         <div id='scores'>
+            <button 
+               disabled={(deckRef.current.length > 0 || 
+                           player1_handRef.current.length > 0 || 
+                           player2_handRef.current.length > 0) ? 
+                           true : false} 
+               onClick={createDeck}>
+                  Create Deck
+            </button>
+            <button 
+               disabled={deckRef.current.length <= 0 ? 
+                           true : false} 
+               onClick={dealCards}>
+                  Deal Cards
+            </button>  
+         </div>
+
+         <h3 id="center">{`Deck has ${deck.length} cards`}</h3> 
+              
+         <div id='center'>
+            <button 
+               disabled={(player1_handRef.current.length <= 0 || 
+                           player2_handRef.current.length <= 0) ? 
+                           true : false} 
+               onClick={()=>setNumHandsToBePlayed('-')}>
+                  -
+            </button>
+            <button 
+               disabled={(player1_handRef.current.length <= 0 || 
+                           player2_handRef.current.length <= 0) ? 
+                           true : false} 
+               onClick={play_game}>
+                  {`Play ${num_of_handsRef.current} Hands`}
+            </button>
+            <button 
+               disabled={(player1_handRef.current.length <= 0 || 
+                           player2_handRef.current.length <= 0) ? 
+                           true : false} 
+               onClick={()=>setNumHandsToBePlayed('+')}>
+                  +
+            </button>
+         </div>      
+
+         <div id='center'>
+            <button 
+               disabled={(player1_handRef.current.length <= 0 || 
+                           player2_handRef.current.length <= 0) ? 
+                           true : false} 
+               onClick={()=>adjustSpeed('Slower')}>
+                  Slower
+            </button>         
+            <button 
+               disabled={(player1_handRef.current.length <= 0 || 
+                           player2_handRef.current.length <= 0) ? 
+                           true : false} 
+               onClick={()=>adjustSpeed('Faster')}>
+                  Faster
+            </button>
+            {/* <Deck/> */}  
+         </div> 
+         <div id='center'>     
+            <h3>{`Player 1 has ${player1_hand.length} cards`}</h3>       
+            <h3 id="p2">{`Player 2 has ${player2_hand.length} cards`}</h3>
+         </div> 
+
+         <div id='scores'>
+            <div id='hand'>
+               <h1>Player 1's Hand:</h1>        
+               <ul>
+                  {player1_handRef.current.map((k) => (
+                     <h4 key={`player1-${k}`}>
+                        {k[0]}
+                     </h4>
+                     )
+                  )}
+               </ul>  
+            </div>  
+            <div id='hand' id="p2">
+               <h1>Player 2's Hand:</h1> 
+               <ul>
+                  {player2_handRef.current.map((k) => (
+                     <h4 key={`player2-${k}`}>
+                        {k[0]}
+                     </h4>
+                     )
+                  )}
+               </ul> 
+            </div>  
+         </div>  
       </div>
    )
 

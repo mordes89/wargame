@@ -99,30 +99,32 @@ const GameHooks = () => {
 
    const check_winner = (n) => {
       if (player1_handRef.current.length < n){
-         // console.log('Player 2 won the game');
+         console.log('Player 2 won the game');
          setGame_on(false);
          // Increment winner's tally in Database
          setPlayer2_wins((prev) => prev+1)                
-         reset();     
          alert('Player 2 won the game');
+         reset();     
          return true
       } else if (player2_handRef.current.length < n){
          console.log('Player 1 won the game');
          setGame_on(false);
          // Increment winner's tally in Database
          setPlayer1_wins((prev) => prev+1)         
-         reset();   
          alert('Player 1 won the game');
+         reset();   
          return true  
+      } else {
+         setGame_on(true);
+         return false;
       }
-      setGame_on(true)
-      return false
+      
    }
 
    const playcards = async () => {
       if (game_onRef.current){
          
-         if (player1_handRef.current[0][1] > player2_handRef.current[0][1]){
+         if ((player1_handRef.current[0][1] > player2_handRef.current[0][1]) && !check_winner(1)){
             setWar(false);
             console.log('player1 wins');
 
@@ -141,7 +143,7 @@ const GameHooks = () => {
                }
             }
             setGame_on(true);
-         } else if (player1_handRef.current[0][1] < player2_handRef.current[0][1]){
+         } else if ((player1_handRef.current[0][1] < player2_handRef.current[0][1]) && !check_winner(1)){
             
             setWar(false);
             console.log('player2 wins');
@@ -161,7 +163,7 @@ const GameHooks = () => {
                }
             }
             setGame_on(true);
-         } else {
+         } else if ((player1_handRef.current[0][1] === player2_handRef.current[0][1]) && !check_winner(1)){
             console.log('war!');
             setWar(true)
             if (warRef.current && !check_winner(3)){
@@ -191,8 +193,7 @@ const GameHooks = () => {
    
 
    const reset = () => {
-      // setGame_on(false);
-      // setDeck([]);
+      setGame_on(false);
       setPlayer1_hand([]);
       setPlayer2_hand([]);
       setCards_to_be_won([]);
@@ -203,9 +204,9 @@ const GameHooks = () => {
       game_onRef.current = true
       let i = 0;
       while (i < num_of_handsRef.current && game_onRef.current){
-         await sleep(speedRef.current)
-         check_winner(1);
          playcards();
+         await sleep(speedRef.current)         
+         check_winner(1)
          i++;
       }
    }

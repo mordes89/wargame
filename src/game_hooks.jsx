@@ -8,7 +8,6 @@ const GameHooks = () => {
    const [player1_hand, setPlayer1_hand] = useState([]);
    const [player2_hand, setPlayer2_hand] = useState([]);
    const [cards_to_be_won, setCards_to_be_won] = useState([]);
-   const [play, setPlay] = useState(false);
    const [game_on, setGame_on] = useState(false);
    const [war, setWar] = useState(false);
    const [player1_wins, setPlayer1_wins] = useState(0);
